@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тайм-Менеджмент — Умиджон</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+/* ============================================================
+   BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: #0a0a0f;
+  color: #e0e0e0;
+  font-size: 0.92rem;
+}
+
+/* Ambient orbs */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 { width: 400px; height: 400px; background: rgba(251,191,36,0.07);  top: -100px; right: -80px; }
+.orb-2 { width: 300px; height: 300px; background: rgba(251,146,60,0.05);  bottom: 100px; left: -80px; }
+.orb-3 { width: 200px; height: 200px; background: rgba(99,102,241,0.04);  top: 50%; left: 40%; }
+
+.container { position: relative; z-index: 1; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header-wrap {
+  padding: 18px 0 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-sub {
+  color: #555;
+  font-weight: 400;
+  font-size: 0.82rem;
+  margin-left: 6px;
+}
+.header-date {
+  font-size: 11px;
+  color: #555;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.nav-tabs {
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  padding: 3px;
+  backdrop-filter: blur(12px);
+  display: flex;
+  gap: 2px;
+}
+.nav-tabs .nav-link {
+  flex: 1;
+  text-align: center;
+  color: #555;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  padding: 6px 4px;
+  font-size: 12px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-tabs .nav-link:hover {
+  color: #888;
+  background: rgba(255,255,255,0.04);
+}
+.nav-tabs .nav-link.active {
+  color: #fbbf24 !important;
+  background: rgba(251,191,36,0.13) !important;
+  border-color: rgba(251,191,36,0.25) !important;
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(251,191,36,0.08);
+}
+
+.tab-content { padding-top: 16px; }
+h6.section-title {
+  color: #333;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  margin: 20px 0 10px;
+}
+
+/* ============================================================
+   DAY TAB
+   ============================================================ */
+.day-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.day-btn {
+  flex: 1;
+  text-align: center;
+  padding: 6px 2px;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #444;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  cursor: pointer;
+  min-width: unset;
+  transition: all 0.15s;
+  font-weight: 500;
+}
+.day-btn:hover { color: #777; background: rgba(255,255,255,0.05); }
+.day-btn.martial {
+  color: rgba(239,68,68,0.65);
+  border-color: rgba(239,68,68,0.18) !important;
+  background: rgba(239,68,68,0.04);
+}
+.day-btn.active-day {
+  background: rgba(251,191,36,0.12) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(251,191,36,0.3) !important;
+  font-weight: 700;
+}
+.day-btn.martial.active-day {
+  background: rgba(239,68,68,0.15) !important;
+  color: #f87171 !important;
+  border-color: rgba(239,68,68,0.35) !important;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  transition: background 0.15s, border-color 0.15s;
+}
+.schedule-row:hover { background: rgba(255,255,255,0.05); }
+.schedule-row.done {
+  background: rgba(251,191,36,0.03);
+  border-color: rgba(251,191,36,0.08);
+}
+.schedule-row.done .task-text { text-decoration: line-through; color: #3a3a3a; }
+.schedule-row.done .task-time { color: #2e2e2e; }
+
+.cat-bar {
+  width: 3px;
+  min-height: 28px;
+  border-radius: 2px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.task-time {
+  width: 40px;
+  color: #555;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.task-icon {
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+.task-text {
+  flex: 1;
+  color: #ccc;
+  font-size: 0.875rem;
+  margin-left: 4px;
+}
+.task-check {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #252525;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  flex-shrink: 0;
+  color: transparent;
+}
+.schedule-row.done .task-check {
+  background: rgba(251,191,36,0.18);
+  border-color: rgba(251,191,36,0.4);
+  color: #fbbf24;
+}
+
+#day-progress-wrap {
+  position: sticky;
+  bottom: 0;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 10px 0 4px;
+}
+#day-progress-wrap .d-flex small { font-size: 11px; }
+#progress-label { color: #555; }
+#progress-pct { color: #fbbf24; }
+#progress-bar {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 8px rgba(251,191,36,0.35);
+}
+.progress {
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+}
+
+/* ============================================================
+   WEEK TAB
+   ============================================================ */
+.week-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(8px);
+}
+.week-card.martial-day { border-left: 2px solid rgba(239,68,68,0.4); }
+.week-card .day-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #ddd;
+  margin-bottom: 3px;
+}
+.week-card .day-theme {
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+.week-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.week-card ul li {
+  font-size: 10px;
+  color: #666;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.rule-item {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.87rem;
+  color: #777;
+}
+.rule-item:last-child { border-bottom: none; }
+.badge.bg-warning {
+  background: rgba(251,191,36,0.2) !important;
+  color: #fbbf24 !important;
+  font-size: 0.65rem !important;
+  border: 1px solid rgba(251,191,36,0.3);
+}
+
+/* ============================================================
+   FINANCE TAB
+   ============================================================ */
+.fin-bar-wrap { margin-bottom: 16px; }
+.fin-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.87rem;
+}
+.fin-label span:first-child { color: #bbb; }
+.fin-label span:last-child  { color: #555; font-size: 0.8rem; }
+.fin-bar { height: 6px; border-radius: 3px; }
+.fin-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.87rem;
+  color: #888;
+}
+.fin-total-row:last-child { border-bottom: none; }
+.fin-total-row.bold { font-weight: 700; color: #fbbf24; font-size: 0.92rem; }
+.tracker-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #ddd;
+  width: 120px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  transition: border-color 0.15s;
+}
+.tracker-input:focus {
+  outline: none;
+  border-color: rgba(251,191,36,0.4);
+  background: rgba(251,191,36,0.04);
+}
+.diff-pos { color: #4ade80; }
+.diff-neg { color: #f87171; }
+
+/* ============================================================
+   SHARED GLASS CARD (used by Finance rules + Goals)
+   ============================================================ */
+.goal-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(8px);
+}
+
+/* ============================================================
+   GOALS TAB
+   ============================================================ */
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.goal-title { font-weight: 600; font-size: 0.95rem; color: #ddd; }
+.goal-progress-text { font-size: 0.8rem; color: #555; }
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  font-size: 0.87rem;
+  color: #888;
+  transition: background 0.12s;
+}
+.goal-item:last-of-type { border-bottom: none; }
+.goal-item:hover {
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+  padding-left: 4px;
+}
+.goal-item.done span { text-decoration: line-through; color: #3a3a3a; }
+.goal-cb {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #252525;
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.goal-cb.checked {
+  background: rgba(251,191,36,0.18);
+  border-color: rgba(251,191,36,0.4);
+  color: #fbbf24;
+}
+.goal-mini-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1px;
+  margin-top: 10px;
+}
+.goal-mini-fill {
+  height: 100%;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  transition: width 0.3s ease;
+}
+#goals-bar {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 8px rgba(251,191,36,0.3);
+}
+#goals-pct { color: #fbbf24; }
+  </style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="container" style="max-width:680px; padding-bottom: 80px;">
+  <div class="header-wrap">
+    <h5 class="mb-0 fw-bold">Умиджон <span class="header-sub">/ тайм-менеджмент</span></h5>
+    <div class="header-date" id="header-date"></div>
+  </div>
+
+  <ul class="nav nav-tabs" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-day">📅 День</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-week">🗓 Неделя</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-finance">💰 Финансы</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-goals">🎯 Цели</button></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ========== TAB: ДЕНЬ ========== -->
+    <div class="tab-pane fade show active" id="tab-day">
+      <div class="day-row">
+        <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="1">Пн</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn martial" data-dow="2">Вт</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="3">Ср</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn martial" data-dow="4">Чт</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="5">Пт</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn martial" data-dow="6">Сб</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="0">Вс</button>
+      </div>
+
+      <div id="schedule-list"></div>
+
+      <div id="day-progress-wrap">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <small id="progress-label" class="text-secondary">Выполнено 0 из 0 задач</small>
+          <small id="progress-pct" class="text-secondary">0%</small>
+        </div>
+        <div class="progress" style="height:6px;">
+          <div id="progress-bar" class="progress-bar bg-success" style="width:0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: НЕДЕЛЯ ========== -->
+    <div class="tab-pane fade" id="tab-week">
+      <div id="week-cards"></div>
+      <h6 class="section-title">Недельные правила</h6>
+      <div class="goal-section">
+        <div class="rule-item">🥋 Единоборства — нельзя пропускать без причины болезни</div>
+        <div class="rule-item">📅 Воскресенье — планирование + финансовый учёт</div>
+        <div class="rule-item">🇬🇧 Каждый день: английский в дороге + Коран в личное время</div>
+        <div class="rule-item">🎓 1 урок Coursera в день в рабочее свободное время</div>
+        <div class="rule-item">📈 Пятница — анализ прогресса по всем направлениям</div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: ФИНАНСЫ ========== -->
+    <div class="tab-pane fade" id="tab-finance">
+      <div class="d-flex justify-content-between align-items-baseline mb-3">
+        <h6 class="mb-0 fw-bold">Зарплата: <span class="text-warning">25 000 000 сум</span></h6>
+        <small class="text-secondary">~$1 950</small>
+      </div>
+
+      <div id="finance-bars"></div>
+
+      <div class="goal-section mt-3">
+        <div class="fin-total-row"><span>💸 Итого расходы</span><span>15 250 000 сум <span class="text-secondary">(61%)</span></span></div>
+        <div class="fin-total-row"><span>📦 Накопления</span><span>7 250 000 сум <span class="text-secondary">(29%)</span></span></div>
+        <div class="fin-total-row"><span>🔄 Резерв / непредвиденное</span><span>2 500 000 сум <span class="text-secondary">(10%)</span></span></div>
+        <div class="fin-total-row bold"><span>ИТОГО</span><span>25 000 000 сум</span></div>
+      </div>
+
+      <h6 class="section-title">Финансовые правила</h6>
+      <div class="goal-section">
+        <div class="rule-item">💳 Кредит, садака, машина — платятся сразу в день зарплаты</div>
+        <div class="rule-item">📈 Акции/золото: ~2.5–3М в месяц, 1г золото обязательно</div>
+        <div class="rule-item">📦 Накопления 7.25М — не трогать, цель: подушка на 6 месяцев</div>
+        <div class="rule-item">🔄 Резерв 2.5М — только для непредвиденных ситуаций</div>
+        <div class="rule-item">📅 Каждое воскресенье — учёт фактических расходов</div>
+      </div>
+
+      <h6 class="section-title">Трекер расходов (месяц)</h6>
+      <div class="goal-section p-0" style="overflow:hidden;">
+        <table class="table table-dark table-sm mb-0" style="background:transparent;">
+          <thead><tr style="color:#888;font-size:0.78rem;"><th>Статья</th><th>План</th><th>Факт</th><th>Откл.</th></tr></thead>
+          <tbody id="tracker-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== TAB: ЦЕЛИ ========== -->
+    <div class="tab-pane fade" id="tab-goals">
+      <div id="goals-list"></div>
+      <div id="goals-progress-wrap" class="goal-section mt-2">
+        <div class="d-flex justify-content-between mb-1">
+          <small class="text-secondary">Общий прогресс</small>
+          <small id="goals-pct" class="text-secondary">0%</small>
+        </div>
+        <div class="progress" style="height:6px;">
+          <div id="goals-bar" class="progress-bar bg-success" style="width:0%;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const MARTIAL_DAYS = [2, 4, 6]; // Tue, Thu, Sat (JS: 0=Sun)
+
+const SCHEDULE_NORMAL = [
+  { time: '07:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание + сборы' },
+  { time: '07:30', icon: '🚌', cat: 'blue',   text: 'Дорога на работу — English listening / подкаст' },
+  { time: '08:30', icon: '📚', cat: 'gray',   text: 'Приехал — свободен до 9:00 → Книга №1 (рабочая)' },
+  { time: '09:00', icon: '💼', cat: 'orange', text: 'РАБОТА — основные задачи (глубокая работа)' },
+  { time: '11:00', icon: '🎓', cat: 'green',  text: 'Coursera / Udemy — 1 урок (свободное время)' },
+  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + дайджест стартапов + Книга №1' },
+  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Vibe-coding / Коран / риторика' },
+  { time: '16:00', icon: '💼', cat: 'orange', text: 'РАБОТА — задачи, встречи' },
+  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой (плавающее)' },
+  { time: '19:00', icon: '😮‍💨', cat: 'gray',  text: 'Дома: ужин / переключение / отдых' },
+  { time: '19:30', icon: '🚀', cat: 'yellow', text: 'БЛОК: проект / риторика / Книга №2 (домашняя)' },
+  { time: '21:30', icon: '📖', cat: 'blue',   text: 'Книга №2 / Курс Коран / Английский Anki' },
+  { time: '22:30', icon: '📝', cat: 'gray',   text: 'Планирование следующего дня — 15 мин' },
+  { time: '22:45', icon: '🌙', cat: 'purple', text: 'Вечерний намаз + расслабление' },
+  { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
+];
+
+const SCHEDULE_MARTIAL = [
+  { time: '07:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание + сборы' },
+  { time: '07:30', icon: '🚌', cat: 'blue',   text: 'Дорога на работу — English listening / подкаст' },
+  { time: '08:30', icon: '📚', cat: 'gray',   text: 'Приехал — свободен до 9:00 → Книга №1 (рабочая)' },
+  { time: '09:00', icon: '💼', cat: 'orange', text: 'РАБОТА — основные задачи (глубокая работа)' },
+  { time: '11:00', icon: '🎓', cat: 'green',  text: 'Coursera / Udemy — 1 урок (свободное время)' },
+  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + дайджест стартапов + Книга №1' },
+  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Vibe-coding / Коран / риторика' },
+  { time: '16:00', icon: '💼', cat: 'orange', text: 'РАБОТА — задачи, встречи' },
+  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой (плавающее)' },
+  { time: '19:00', icon: '😮‍💨', cat: 'gray',  text: 'Дома: ужин / переключение / отдых' },
+  { time: '19:30', icon: '🥊', cat: 'red',    text: 'Подготовка к единоборству / разминка дома' },
+  { time: '20:30', icon: '🚶', cat: 'red',    text: 'Выход на единоборства' },
+  { time: '21:00', icon: '🥋', cat: 'red',    text: 'ЕДИНОБОРСТВА' },
+  { time: '22:30', icon: '🚿', cat: 'gray',   text: 'Возврат + душ + восстановление' },
+  { time: '22:45', icon: '📝', cat: 'gray',   text: 'Планирование следующего дня — 15 мин' },
+  { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
+];
+
+const CAT_COLORS = {
+  gray:   '#6c757d',
+  blue:   '#0d6efd',
+  orange: '#fd7e14',
+  green:  '#198754',
+  yellow: '#ffc107',
+  purple: '#6f42c1',
+  red:    '#dc3545',
+};
+
+const WEEK_DATA = [
+  { dow: 1, label: 'Понедельник', theme: '🚀 Стартап-день', martial: false,
+    tasks: ['Coursera 1 урок', 'Vibe-coding проект', 'Книга 20 стр', 'Английский в дороге'] },
+  { dow: 2, label: 'Вторник',     theme: '🥋 Бой-день',     martial: true,
+    tasks: ['Единоборства 21:00', 'Дайджест стартапов', 'Ораторство 30 мин', 'Английский в дороге'] },
+  { dow: 3, label: 'Среда',       theme: '📈 Карьера-день', martial: false,
+    tasks: ['Глубокая работа', 'Coursera', 'Риторика', 'Книга вечером'] },
+  { dow: 4, label: 'Четверг',     theme: '🥋 Бой-день',     martial: true,
+    tasks: ['Единоборства 21:00', 'Udemy курс', 'Книга 20 стр', 'Английский в дороге'] },
+  { dow: 5, label: 'Пятница',     theme: '💰 Итоги-день',   martial: false,
+    tasks: ['Анализ акций/золота', 'Итоги недели', 'Планирование следующей недели'] },
+  { dow: 6, label: 'Суббота',     theme: '🥋 Свободное утро + бой', martial: true,
+    tasks: ['Единоборства 21:00', 'Глубокий vibe-coding 3ч', 'Книга', 'Коран расширенно'] },
+  { dow: 0, label: 'Воскресенье', theme: '🔄 Перезагрузка', martial: false,
+    tasks: ['Планирование недели', 'Финансовый учёт', 'Чтение / отдых', 'Намаз'] },
+];
+
+const FINANCE_ITEMS = [
+  { icon: '💳', label: 'Кредит (обязательно)',        sum: 6000000,  pct: 24, color: '#dc3545' },
+  { icon: '🤲', label: 'Благотворительность + родители', sum: 2000000, pct: 8,  color: '#6f42c1' },
+  { icon: '🚗', label: 'Расходы на машину',           sum: 2000000,  pct: 8,  color: '#0d6efd' },
+  { icon: '🛒', label: 'Личные расходы (еда, прочее)', sum: 2000000, pct: 8,  color: '#20c997' },
+  { icon: '📈', label: 'Акции + 1г золото',           sum: 2750000,  pct: 11, color: '#ffc107' },
+  { icon: '📚', label: 'Покупка книг',                sum: 500000,   pct: 2,  color: '#198754' },
+];
+
+const GOALS_DATA = [
+  { id: 'sport', title: '🥋 Спорт', items: [
+    'Единоборства 3х/нед — БЕЗ пропусков (Вт/Чт/Сб)',
+    'Утренняя разминка 10 мин (пн/ср/пт)',
+  ]},
+  { id: 'english', title: '🇬🇧 Английский', items: [
+    'Listening в дороге каждый день (подкаст/видео)',
+    '1 профессиональная статья на английском в день',
+    'Anki/Duolingo вечером 15–20 мин',
+  ]},
+  { id: 'russian', title: '🇷🇺 Русский', items: [
+    'Читать книги на русском (20 стр/день)',
+    'Вести дневник на русском 10 мин/день',
+  ]},
+  { id: 'quran', title: '📖 Коран', items: [
+    'Курс по Корану в личное время на работе (14:00–16:00)',
+    '5 намазов (цель — постепенно, без давления)',
+  ]},
+  { id: 'vibe', title: '🚀 Vibe-coding / стартапы', items: [
+    'Дайджест стартапов каждый обед (10 мин)',
+    'Vibe-coding: 1 мини-проект в месяц запустить',
+    'Изучить 1 новый AI-инструмент в неделю',
+  ]},
+  { id: 'books', title: '📚 Книги', items: [
+    'Книга №1 (на работе / в дороге) — 20 стр/день',
+    'Книга №2 (дома вечером) — 20 стр/день',
+  ]},
+  { id: 'rhetoric', title: '🎤 Риторика / ораторство', items: [
+    'YouTube / книга по ораторству 3х/нед (вечером)',
+    'Практика: запись себя на видео 1х/нед',
+  ]},
+  { id: 'career', title: '💼 Карьера / работа', items: [
+    'Coursera: 1 урок в день в свободное рабочее время',
+    'Применять изученное в реальных задачах на SQB',
+    'Профессиональный кейс / статья 1х/месяц',
+  ]},
+  { id: 'chess', title: '♟ Шахматы (100 → 1200)', items: [
+    'Решить 5–10 задач в день (тактика)',
+    'Сыграть 1–2 партии в день',
+    'Разбор своих партий 1х/нед',
+  ]},
+];
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtNum(n) {
+  return n.toLocaleString('ru-RU');
+}
+
+// ============================================================
+//  TAB 1: ДЕНЬ
+// ============================================================
+let currentDow = new Date().getDay(); // 0=Sun
+
+function renderSchedule(dow) {
+  const isMartial = MARTIAL_DAYS.includes(dow);
+  const tasks = isMartial ? SCHEDULE_MARTIAL : SCHEDULE_NORMAL;
+  const dateKey = todayKey();
+  const list = document.getElementById('schedule-list');
+  list.innerHTML = '';
+
+  tasks.forEach((task, idx) => {
+    const storageKey = `sched-${dateKey}-${idx}`;
+    const done = localStorage.getItem(storageKey) === '1';
+    const color = CAT_COLORS[task.cat] || '#6c757d';
+
+    const row = document.createElement('div');
+    row.className = 'schedule-row' + (done ? ' done' : '');
+    row.innerHTML = `
+      <div class="cat-bar" style="background:${color};"></div>
+      <span class="task-time">${task.time}</span>
+      <span class="task-icon">${task.icon}</span>
+      <span class="task-text">${task.text}</span>
+      <span class="task-check">${done ? '✓' : ''}</span>
+    `;
+    row.addEventListener('click', () => {
+      const nowDone = localStorage.getItem(storageKey) === '1';
+      localStorage.setItem(storageKey, nowDone ? '0' : '1');
+      renderSchedule(dow);
+    });
+    list.appendChild(row);
+  });
+
+  updateDayProgress(tasks, dateKey);
+}
+
+function updateDayProgress(tasks, dateKey) {
+  const total = tasks.length;
+  let done = 0;
+  tasks.forEach((_, idx) => {
+    if (localStorage.getItem(`sched-${dateKey}-${idx}`) === '1') done++;
+  });
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progress-label').textContent = `Выполнено ${done} из ${total} задач сегодня`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function initDayTab() {
+  document.querySelectorAll('.day-btn').forEach(btn => {
+    const dow = +btn.dataset.dow;
+    if (dow === currentDow) btn.classList.add('active-day');
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active-day'));
+      btn.classList.add('active-day');
+      currentDow = dow;
+      renderSchedule(dow);
+    });
+  });
+  renderSchedule(currentDow);
+}
+
+// ============================================================
+//  TAB 2: НЕДЕЛЯ
+// ============================================================
+function initWeekTab() {
+  const container = document.getElementById('week-cards');
+  const todayDow = new Date().getDay();
+  WEEK_DATA.forEach(day => {
+    const isToday = day.dow === todayDow;
+    const card = document.createElement('div');
+    card.className = 'week-card' + (day.martial ? ' martial-day' : '');
+    if (isToday) card.style.borderColor = '#ffc107';
+    card.innerHTML = `
+      <div class="day-label">${day.label} ${isToday ? '<span class="badge bg-warning text-dark" style="font-size:0.7rem;">сегодня</span>' : ''}</div>
+      <div class="day-theme">${day.theme}</div>
+      <ul>${day.tasks.map(t => `<li>${t}</li>`).join('')}</ul>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ============================================================
+//  TAB 3: ФИНАНСЫ
+// ============================================================
+function initFinanceTab() {
+  const barsContainer = document.getElementById('finance-bars');
+  FINANCE_ITEMS.forEach(item => {
+    const wrap = document.createElement('div');
+    wrap.className = 'fin-bar-wrap';
+    wrap.innerHTML = `
+      <div class="fin-label">
+        <span>${item.icon} ${item.label}</span>
+        <span>${fmtNum(item.sum)} сум (${item.pct}%)</span>
+      </div>
+      <div class="progress" style="height:10px;">
+        <div class="progress-bar" style="width:${item.pct}%;background:${item.color};"></div>
+      </div>
+    `;
+    barsContainer.appendChild(wrap);
+  });
+
+  // Tracker table
+  const tbody = document.getElementById('tracker-tbody');
+  FINANCE_ITEMS.forEach(item => {
+    const storageKey = `fin-fact-${item.label}`;
+    const saved = localStorage.getItem(storageKey) || '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-size:0.83rem;">${item.icon} ${item.label}</td>
+      <td style="color:#aaa;font-size:0.83rem;">${fmtNum(item.sum)}</td>
+      <td><input class="tracker-input" type="number" placeholder="0" value="${saved}" data-key="${storageKey}" data-plan="${item.sum}" /></td>
+      <td class="diff-cell" style="font-size:0.83rem;"></td>
+    `;
+    tbody.appendChild(tr);
+    const input = tr.querySelector('input');
+    updateDiff(input, tr.querySelector('.diff-cell'), item.sum, saved);
+    input.addEventListener('input', () => {
+      localStorage.setItem(storageKey, input.value);
+      updateDiff(input, tr.querySelector('.diff-cell'), item.sum, input.value);
+    });
+  });
+}
+
+function updateDiff(input, cell, plan, val) {
+  const fact = parseFloat(val) || 0;
+  if (!val) { cell.textContent = '—'; cell.className = 'diff-cell'; return; }
+  const diff = fact - plan;
+  if (diff === 0) { cell.textContent = '0'; cell.className = 'diff-cell'; }
+  else if (diff > 0) { cell.textContent = '+' + fmtNum(diff); cell.className = 'diff-cell diff-neg'; }
+  else { cell.textContent = fmtNum(diff); cell.className = 'diff-cell diff-pos'; }
+}
+
+// ============================================================
+//  TAB 4: ЦЕЛИ
+// ============================================================
+function initGoalsTab() {
+  const container = document.getElementById('goals-list');
+  GOALS_DATA.forEach(section => {
+    const el = document.createElement('div');
+    el.className = 'goal-section';
+    el.innerHTML = `
+      <div class="goal-header">
+        <span class="goal-title">${section.title}</span>
+        <span class="goal-progress-text" id="gp-${section.id}">0 / ${section.items.length}</span>
+      </div>
+      <div id="gi-${section.id}"></div>
+      <div class="goal-mini-bar"><div class="goal-mini-fill" id="gf-${section.id}" style="width:0%;"></div></div>
+    `;
+    container.appendChild(el);
+
+    const itemContainer = el.querySelector(`#gi-${section.id}`);
+    section.items.forEach((text, idx) => {
+      const key = `goal-${section.id}-${idx}`;
+      const checked = localStorage.getItem(key) === '1';
+      const item = document.createElement('div');
+      item.className = 'goal-item' + (checked ? ' done' : '');
+      item.innerHTML = `
+        <div class="goal-cb ${checked ? 'checked' : ''}">${checked ? '✓' : ''}</div>
+        <span>${text}</span>
+      `;
+      item.addEventListener('click', () => {
+        const now = localStorage.getItem(key) === '1';
+        localStorage.setItem(key, now ? '0' : '1');
+        renderGoalSection(section);
+        updateGoalsProgress();
+      });
+      itemContainer.appendChild(item);
+    });
+    renderGoalSection(section);
+  });
+  updateGoalsProgress();
+}
+
+function renderGoalSection(section) {
+  const itemContainer = document.getElementById(`gi-${section.id}`);
+  const items = itemContainer.querySelectorAll('.goal-item');
+  let done = 0;
+  items.forEach((item, idx) => {
+    const key = `goal-${section.id}-${idx}`;
+    const checked = localStorage.getItem(key) === '1';
+    const cb = item.querySelector('.goal-cb');
+    cb.className = 'goal-cb' + (checked ? ' checked' : '');
+    cb.textContent = checked ? '✓' : '';
+    item.className = 'goal-item' + (checked ? ' done' : '');
+    if (checked) done++;
+  });
+  const total = section.items.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById(`gp-${section.id}`).textContent = `${done} / ${total}`;
+  document.getElementById(`gf-${section.id}`).style.width = pct + '%';
+}
+
+function updateGoalsProgress() {
+  let total = 0, done = 0;
+  GOALS_DATA.forEach(section => {
+    section.items.forEach((_, idx) => {
+      total++;
+      if (localStorage.getItem(`goal-${section.id}-${idx}`) === '1') done++;
+    });
+  });
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('goals-pct').textContent = pct + '%';
+  document.getElementById('goals-bar').style.width = pct + '%';
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+// Render header date
+(function() {
+  const el = document.getElementById('header-date');
+  if (!el) return;
+  const d = new Date();
+  const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  el.textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+})();
+initDayTab();
+initWeekTab();
+initFinanceTab();
+initGoalsTab();
+</script>
+</body>
+</html>
