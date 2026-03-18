@@ -135,6 +135,23 @@ class handler(BaseHTTPRequestHandler):
                     }, timeout=5)
                 except Exception:
                     pass
+
+        poll_answer = update.get("poll_answer")
+        if poll_answer:
+            poll_id = str(poll_answer["poll_id"])
+            option_ids = poll_answer.get("option_ids", [])
+            done = 0 in option_ids  # option 0 = Yes/Да/Ha
+            try:
+                from lib.github_storage import read_polls, read_day_data, write_day_data
+                polls = read_polls()
+                if poll_id in polls:
+                    p = polls[poll_id]
+                    day_data = read_day_data(p["date"])
+                    day_data.setdefault("schedule", {})[str(p["task_idx"])] = done
+                    write_day_data(p["date"], day_data)
+            except Exception:
+                pass
+
         self._ok()
 
     def _ok(self):

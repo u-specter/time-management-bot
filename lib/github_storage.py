@@ -55,3 +55,38 @@ def count_done(date: str) -> tuple:
     total = len(get_today_schedule())
     done = sum(1 for v in schedule_map.values() if v is True)
     return done, total
+
+
+# ── Poll storage ──────────────────────────────────────────────
+
+def _polls_url() -> str:
+    return f"{BASE_URL}/repos/{GITHUB_REPO}/contents/data/polls.json"
+
+
+def read_polls() -> dict:
+    r = httpx.get(_polls_url(), headers=HEADERS, timeout=10)
+    if r.status_code == 404:
+        return {}
+    r.raise_for_status()
+    raw = base64.b64decode(r.json()["content"]).decode("utf-8")
+    return json.loads(raw)
+
+
+def write_polls(data: dict) -> None:
+    encoded = base64.b64encode(
+        json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+    ).decode("utf-8")
+    sha = None
+    r = httpx.get(_polls_url(), headers=HEADERS, timeout=10)
+    if r.status_code == 200:
+        sha = r.json()["sha"]
+    payload: dict = {"message": "polls: update", "content": encoded}
+    if sha:
+        payload["sha"] = sha
+    httpx.put(_polls_url(), headers=HEADERS, json=payload, timeout=15).raise_for_status()
+
+
+def add_poll(poll_id: str, date: str, task_idx: int, task_text: str) -> None:
+    polls = read_polls()
+    polls[str(poll_id)] = {"date": date, "task_idx": task_idx, "task_text": task_text}
+    write_polls(polls)

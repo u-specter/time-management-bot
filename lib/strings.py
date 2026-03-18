@@ -8,13 +8,13 @@ DAY_NAMES = {
 WEEK_THEMES = {
     "ru": {
         1: "Стартап-день 🚀", 2: "Бой-день 🥋", 3: "Карьера-день 📈",
-        4: "Бой-день 🥋", 5: "Итоги-день 💰", 6: "Свободное утро + бой 🥋",
-        0: "Перезагрузка 🔄",
+        4: "Бой-день 🥋", 5: "Итоги-день 💰", 6: "Свободный день + тренировка 🥋",
+        0: "День отдыха 🔄",
     },
     "uz": {
         1: "Startup kuni 🚀", 2: "Jang kuni 🥋", 3: "Martaba kuni 📈",
-        4: "Jang kuni 🥋", 5: "Yakunlar kuni 💰", 6: "Erkin tong + jang 🥋",
-        0: "Dam olish 🔄",
+        4: "Jang kuni 🥋", 5: "Yakunlar kuni 💰", 6: "Erkin kun + mashg'ulot 🥋",
+        0: "Dam olish kuni 🔄",
     },
 }
 
@@ -69,6 +69,18 @@ S = {
             "📊 Подведи итоги 7 дней"
         ),
         "weekly_btn": "📱 Открыть финансы →",
+        # hourly
+        "hourly_notify": "⏰ <b>{time}</b> — {icon} {text}",
+        "poll_question": "📊 Как прошло?\n{icon} {time} — {text}",
+        "poll_yes": "✅ Выполнено",
+        "poll_no": "❌ Не выполнено",
+        # quote
+        "quote_prompt": (
+            "Напиши одну короткую вдохновляющую цитату или мудрую мысль на русском языке "
+            "(не более 2 предложений) для человека, который развивает продуктивные привычки, "
+            "учит английский, занимается шахматами и единоборствами. "
+            "Только саму цитату, без кавычек и атрибуции."
+        ),
     },
     "uz": {
         # /start
@@ -120,5 +132,17 @@ S = {
             "📊 7 kunni yakunlang"
         ),
         "weekly_btn": "📱 Moliyani ochish →",
+        # hourly
+        "hourly_notify": "⏰ <b>{time}</b> — {icon} {text}",
+        "poll_question": "📊 Qanday bo'ldi?\n{icon} {time} — {text}",
+        "poll_yes": "✅ Bajarildi",
+        "poll_no": "❌ Bajarilmadi",
+        # quote
+        "quote_prompt": (
+            "O'zbek tilida bitta qisqa ilhomlantiruvchi iqtibos yoki dono fikr yoz "
+            "(2 jumladan ko'p bo'lmasin) samarali odatlar shakllantiruvchi, "
+            "ingliz tili o'rganuvchi, shaxmat va kurash bilan shug'ullanuvchi kishi uchun. "
+            "Faqat iqtibosning o'zini yoz, tirnoqsiz va manbasiz."
+        ),
     },
 }

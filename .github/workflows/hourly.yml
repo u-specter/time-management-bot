@@ -1,7 +1,7 @@
-name: Morning Notification
+name: Hourly Notification
 on:
   schedule:
-    - cron: '0 2 * * *'   # 07:00 UTC+5 daily
+    - cron: '0 2-18 * * *'   # 07:00-23:00 UTC+5 every hour
   workflow_dispatch:
 jobs:
   notify:
@@ -11,11 +11,10 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install httpx
-      - run: python scripts/notify_morning.py
+      - run: python scripts/notify_hourly.py
         env:
           BOT_TOKEN:    ${{ secrets.BOT_TOKEN }}
           CHAT_ID:      ${{ secrets.CHAT_ID }}
           MINI_APP_URL: ${{ secrets.MINI_APP_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO:  ${{ github.repository }}
-          OPENAI_KEY:   ${{ secrets.OPENAI_KEY }}
