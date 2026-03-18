@@ -395,6 +395,7 @@ h6.section-title {
 }
 #goals-pct { color: #fbbf24; }
   </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 <div class="orb orb-1"></div>
@@ -506,6 +507,40 @@ h6.section-title {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// ============================================================
+//  TELEGRAM MINI APP + API STORAGE
+// ============================================================
+const IS_TG = !!(window.Telegram && window.Telegram.WebApp);
+const tg = IS_TG ? window.Telegram.WebApp : null;
+const API_BASE = 'https://YOUR-APP.vercel.app'; // replace after Vercel deploy
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+  // Follow Telegram's color scheme (dark/light)
+  document.documentElement.setAttribute('data-bs-theme',
+    tg.colorScheme === 'dark' ? 'dark' : 'light');
+}
+
+async function apiLoad(date) {
+  if (!IS_TG) return null;
+  try {
+    const r = await fetch(API_BASE + '/api/data?date=' + date);
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+async function apiSave(date, type, key, value, subkey) {
+  if (!IS_TG) return;
+  try {
+    await fetch(API_BASE + '/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, type, key, value, subkey }),
+    });
+  } catch { /* localStorage already updated — silent fail */ }
+}
+
 // ============================================================
 //  DATA
 // ============================================================
@@ -644,16 +679,19 @@ function fmtNum(n) {
 // ============================================================
 let currentDow = new Date().getDay(); // 0=Sun
 
-function renderSchedule(dow) {
+async function renderSchedule(dow) {
   const isMartial = MARTIAL_DAYS.includes(dow);
   const tasks = isMartial ? SCHEDULE_MARTIAL : SCHEDULE_NORMAL;
   const dateKey = todayKey();
   const list = document.getElementById('schedule-list');
   list.innerHTML = '';
 
+  const apiData = await apiLoad(dateKey);
+  const apiSched = apiData ? (apiData.schedule || {}) : null;
+
   tasks.forEach((task, idx) => {
     const storageKey = `sched-${dateKey}-${idx}`;
-    const done = localStorage.getItem(storageKey) === '1';
+    const done = apiSched ? apiSched[String(idx)] === true : localStorage.getItem(storageKey) === '1';
     const color = CAT_COLORS[task.cat] || '#6c757d';
 
     const row = document.createElement('div');
@@ -666,21 +704,26 @@ function renderSchedule(dow) {
       <span class="task-check">${done ? '✓' : ''}</span>
     `;
     row.addEventListener('click', () => {
-      const nowDone = localStorage.getItem(storageKey) === '1';
-      localStorage.setItem(storageKey, nowDone ? '0' : '1');
+      const cur = apiSched ? apiSched[String(idx)] === true : localStorage.getItem(storageKey) === '1';
+      const next = !cur;
+      localStorage.setItem(storageKey, next ? '1' : '0');
+      apiSave(dateKey, 'schedule', idx, next);
       renderSchedule(dow);
     });
     list.appendChild(row);
   });
 
-  updateDayProgress(tasks, dateKey);
+  updateDayProgress(tasks, dateKey, apiSched);
 }
 
-function updateDayProgress(tasks, dateKey) {
+function updateDayProgress(tasks, dateKey, apiSched) {
   const total = tasks.length;
   let done = 0;
   tasks.forEach((_, idx) => {
-    if (localStorage.getItem(`sched-${dateKey}-${idx}`) === '1') done++;
+    const isDone = apiSched
+      ? apiSched[String(idx)] === true
+      : localStorage.getItem(`sched-${dateKey}-${idx}`) === '1';
+    if (isDone) done++;
   });
   const pct = total ? Math.round(done / total * 100) : 0;
   document.getElementById('progress-label').textContent = `Выполнено ${done} из ${total} задач сегодня`;
@@ -803,7 +846,9 @@ function initGoalsTab() {
       `;
       item.addEventListener('click', () => {
         const now = localStorage.getItem(key) === '1';
-        localStorage.setItem(key, now ? '0' : '1');
+        const newVal = !now;
+        localStorage.setItem(key, newVal ? '1' : '0');
+        apiSave(todayKey(), 'goals', section.id, newVal, idx);
         renderGoalSection(section);
         updateGoalsProgress();
       });
