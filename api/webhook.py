@@ -8,8 +8,10 @@ from datetime import date
 
 import httpx
 
-from lib.schedule_data import get_today_schedule, get_dow, DAY_NAMES, WEEK_THEMES
+from lib.schedule_data import get_today_schedule, get_dow
 from lib.github_storage import read_day_data, write_day_data, count_done
+from lib.settings import get_lang, set_lang
+from lib.strings import S, DAY_NAMES, WEEK_THEMES
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = str(os.environ["CHAT_ID"])
@@ -17,9 +19,9 @@ MINI_APP_URL = os.environ.get("MINI_APP_URL", "")
 TG = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 
-def keyboard():
+def keyboard(label: str):
     return {"inline_keyboard": [[
-        {"text": "📱 Открыть дашборд", "web_app": {"url": MINI_APP_URL}}
+        {"text": label, "web_app": {"url": MINI_APP_URL}}
     ]]}
 
 
@@ -35,40 +37,38 @@ def today() -> str:
 
 
 def handle(text: str, chat_id: str):
+    lang = get_lang()
+    t = S[lang]
     cmd = text.split()[0].lower().split("@")[0]
 
     if cmd == "/start":
-        send(chat_id,
-             "👋 <b>Умиджон, твой личный командный центр</b>\n\n"
-             "/today — расписание дня\n"
-             "/done 3 — отметить задачу #3\n"
-             "/stats — прогресс за сегодня\n"
-             "/week — план недели",
-             keyboard())
+        send(chat_id, t["start"], keyboard(t["btn_dashboard"]))
 
     elif cmd == "/app":
-        send(chat_id, "📱 Открыть дашборд:", keyboard())
+        send(chat_id, t["app"], keyboard(t["btn_dashboard"]))
 
     elif cmd == "/today":
         schedule = get_today_schedule()
         dow = get_dow()
+        day = DAY_NAMES[lang][dow]
+        theme = WEEK_THEMES[lang][dow]
         lines = "\n".join(
-            f"{i+1}. {t['icon']} <b>{t['time']}</b> {t['text']}"
-            for i, t in enumerate(schedule)
+            f"{i+1}. {task['icon']} <b>{task['time']}</b> {task['text']}"
+            for i, task in enumerate(schedule)
         )
         send(chat_id,
-             f"📅 <b>{DAY_NAMES[dow]} — {WEEK_THEMES[dow]}</b>\n\n{lines}",
-             keyboard())
+             f"📅 <b>{day} — {theme}</b>\n\n{lines}",
+             keyboard(t["today_btn"]))
 
     elif cmd == "/done":
         parts = text.split()
         if len(parts) < 2 or not parts[1].isdigit():
-            send(chat_id, "❌ Используй: /done 3")
+            send(chat_id, t["done_invalid"])
             return
         n = int(parts[1]) - 1
         schedule = get_today_schedule()
         if not (0 <= n < len(schedule)):
-            send(chat_id, f"❌ Нет задачи #{n+1}. Всего: {len(schedule)}")
+            send(chat_id, t["done_no_task"].format(n=n + 1, total=len(schedule)))
             return
         try:
             d = today()
@@ -77,10 +77,10 @@ def handle(text: str, chat_id: str):
             write_day_data(d, data)
             task = schedule[n]
             send(chat_id,
-                 f"✅ <b>{task['icon']} {task['text']}</b>\n\nЗадача #{n+1} отмечена.",
-                 keyboard())
+                 t["done_ok"].format(icon=task["icon"], text=task["text"], n=n + 1),
+                 keyboard(t["btn_dashboard"]))
         except Exception as e:
-            send(chat_id, f"⚠️ Ошибка: {e}")
+            send(chat_id, t["done_err"].format(e=e))
 
     elif cmd == "/stats":
         try:
@@ -88,16 +88,29 @@ def handle(text: str, chat_id: str):
             pct = round(done / total * 100) if total else 0
             mood = "🔥" if pct >= 70 else ("📈" if pct >= 40 else "💪")
             send(chat_id,
-                 f"📊 <b>Прогресс сегодня</b>\n\n✅ {done}/{total} ({pct}%) {mood}",
-                 keyboard())
+                 t["stats"].format(done=done, total=total, pct=pct, mood=mood),
+                 keyboard(t["btn_dashboard"]))
         except Exception as e:
-            send(chat_id, f"⚠️ Ошибка: {e}")
+            send(chat_id, t["stats_err"].format(e=e))
 
     elif cmd == "/week":
         dow = get_dow()
         send(chat_id,
-             f"🗓 <b>{DAY_NAMES[dow]}</b> — {WEEK_THEMES[dow]}\n\nПолный план в дашборде:",
-             keyboard())
+             t["week"].format(day=DAY_NAMES[lang][dow], theme=WEEK_THEMES[lang][dow]),
+             keyboard(t["btn_dashboard"]))
+
+    elif cmd == "/lang":
+        parts = text.split()
+        if len(parts) < 2 or parts[1].lower() not in ("ru", "uz"):
+            send(chat_id, t["lang_invalid"])
+            return
+        new_lang = parts[1].lower()
+        try:
+            set_lang(new_lang)
+            key = "lang_set_uz" if new_lang == "uz" else "lang_set_ru"
+            send(chat_id, S[new_lang][key])
+        except Exception as e:
+            send(chat_id, f"⚠️ {e}")
 
 
 class handler(BaseHTTPRequestHandler):
