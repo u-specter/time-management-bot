@@ -424,7 +424,7 @@ h6.section-title {
         <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="3">Ср</button>
         <button class="btn btn-sm btn-outline-secondary day-btn martial" data-dow="4">Чт</button>
         <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="5">Пт</button>
-        <button class="btn btn-sm btn-outline-secondary day-btn martial" data-dow="6">Сб</button>
+        <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="6">Сб</button>
         <button class="btn btn-sm btn-outline-secondary day-btn" data-dow="0">Вс</button>
       </div>
 
@@ -544,7 +544,7 @@ async function apiSave(date, type, key, value, subkey) {
 // ============================================================
 //  DATA
 // ============================================================
-const MARTIAL_DAYS = [2, 4, 6]; // Tue, Thu, Sat (JS: 0=Sun)
+const MARTIAL_DAYS = [2, 4]; // Tue, Thu (JS: 0=Sun)
 
 const SCHEDULE_NORMAL = [
   { time: '07:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание + сборы' },
@@ -583,6 +583,37 @@ const SCHEDULE_MARTIAL = [
   { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
 ];
 
+const SCHEDULE_SATURDAY = [
+  { time: '08:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание' },
+  { time: '09:00', icon: '☕', cat: 'orange', text: 'Завтрак + отдых / семья' },
+  { time: '10:00', icon: '🚀', cat: 'purple', text: 'Личный проект / Vibe-coding' },
+  { time: '12:00', icon: '🥗', cat: 'orange', text: 'Обед' },
+  { time: '13:00', icon: '♟️', cat: 'blue',   text: 'Шахматы / Английский' },
+  { time: '15:00', icon: '📖', cat: 'yellow', text: 'Чтение / Коран' },
+  { time: '17:00', icon: '🚶', cat: 'green',  text: 'Прогулка / свежий воздух' },
+  { time: '19:00', icon: '🍽️', cat: 'orange', text: 'Ужин + отдых' },
+  { time: '19:30', icon: '🥊', cat: 'red',    text: 'Подготовка к единоборству' },
+  { time: '20:30', icon: '🚶', cat: 'red',    text: 'Выход на единоборства' },
+  { time: '21:00', icon: '🥋', cat: 'red',    text: 'ЕДИНОБОРСТВА' },
+  { time: '22:30', icon: '🚿', cat: 'gray',   text: 'Возврат + душ + восстановление' },
+  { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
+];
+
+const SCHEDULE_SUNDAY = [
+  { time: '09:00', icon: '🌅', cat: 'gray',   text: 'Подъём без будильника + намаз' },
+  { time: '10:00', icon: '☕', cat: 'orange', text: 'Завтрак + семейное время' },
+  { time: '11:00', icon: '📖', cat: 'yellow', text: 'Чтение / Книга №1 или №2' },
+  { time: '13:00', icon: '🥗', cat: 'orange', text: 'Обед' },
+  { time: '14:00', icon: '🔄', cat: 'blue',   text: 'Обзор недели + планирование следующей' },
+  { time: '16:00', icon: '🚶', cat: 'green',  text: 'Прогулка / свежий воздух' },
+  { time: '18:00', icon: '🍽️', cat: 'orange', text: 'Ужин' },
+  { time: '19:00', icon: '♟️', cat: 'blue',   text: 'Шахматы / Английский Anki' },
+  { time: '20:00', icon: '📊', cat: 'yellow', text: 'Финансовый учёт + итоги недели' },
+  { time: '21:00', icon: '📖', cat: 'yellow', text: 'Чтение / расслабление' },
+  { time: '22:30', icon: '🌙', cat: 'gray',   text: 'Вечерний намаз + подготовка ко сну' },
+  { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
+];
+
 const CAT_COLORS = {
   gray:   '#6c757d',
   blue:   '#0d6efd',
@@ -604,10 +635,10 @@ const WEEK_DATA = [
     tasks: ['Единоборства 21:00', 'Udemy курс', 'Книга 20 стр', 'Английский в дороге'] },
   { dow: 5, label: 'Пятница',     theme: '💰 Итоги-день',   martial: false,
     tasks: ['Анализ акций/золота', 'Итоги недели', 'Планирование следующей недели'] },
-  { dow: 6, label: 'Суббота',     theme: '🥋 Свободное утро + бой', martial: true,
-    tasks: ['Единоборства 21:00', 'Глубокий vibe-coding 3ч', 'Книга', 'Коран расширенно'] },
-  { dow: 0, label: 'Воскресенье', theme: '🔄 Перезагрузка', martial: false,
-    tasks: ['Планирование недели', 'Финансовый учёт', 'Чтение / отдых', 'Намаз'] },
+  { dow: 6, label: 'Суббота',     theme: '🥋 Свободный день + тренировка', martial: false,
+    tasks: ['Vibe-coding 10:00–12:00', 'Шахматы / Английский', 'Единоборства 21:00', 'Чтение / Коран'] },
+  { dow: 0, label: 'Воскресенье', theme: '🔄 День отдыха', martial: false,
+    tasks: ['Планирование недели', 'Финансовый учёт', 'Шахматы / Английский', 'Чтение / отдых'] },
 ];
 
 const FINANCE_ITEMS = [
@@ -680,8 +711,11 @@ function fmtNum(n) {
 let currentDow = new Date().getDay(); // 0=Sun
 
 async function renderSchedule(dow) {
-  const isMartial = MARTIAL_DAYS.includes(dow);
-  const tasks = isMartial ? SCHEDULE_MARTIAL : SCHEDULE_NORMAL;
+  let tasks;
+  if (dow === 6) tasks = SCHEDULE_SATURDAY;
+  else if (dow === 0) tasks = SCHEDULE_SUNDAY;
+  else if (MARTIAL_DAYS.includes(dow)) tasks = SCHEDULE_MARTIAL;
+  else tasks = SCHEDULE_NORMAL;
   const dateKey = todayKey();
   const list = document.getElementById('schedule-list');
   list.innerHTML = '';
