@@ -126,7 +126,15 @@ class handler(BaseHTTPRequestHandler):
         text = msg.get("text", "")
         chat_id = str(msg.get("chat", {}).get("id", ""))
         if chat_id == CHAT_ID and text.startswith("/"):
-            handle(text, chat_id)
+            try:
+                handle(text, chat_id)
+            except Exception as e:
+                try:
+                    httpx.post(f"{TG}/sendMessage", json={
+                        "chat_id": chat_id, "text": f"⚠️ Internal error: {e}"
+                    }, timeout=5)
+                except Exception:
+                    pass
         self._ok()
 
     def _ok(self):

@@ -4,8 +4,8 @@ import base64
 
 import httpx
 
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-GITHUB_REPO = os.environ["GITHUB_REPO"]
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "")
 BASE_URL = "https://api.github.com"
 HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
@@ -43,7 +43,10 @@ def write_settings(data: dict) -> None:
 
 
 def get_lang() -> str:
-    return read_settings().get("lang", "ru")
+    try:
+        return read_settings().get("lang", "ru")
+    except Exception:
+        return "ru"
 
 
 def set_lang(lang: str) -> None:
