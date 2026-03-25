@@ -74,6 +74,8 @@ S = {
         "poll_question": "📊 Как прошло?\n{icon} {time} — {text}",
         "poll_yes": "✅ Выполнено",
         "poll_no": "❌ Не выполнено",
+        "cb_saved_yes": "✅ Записано — выполнено!",
+        "cb_saved_no": "❌ Записано — не выполнено",
         # quote
         "quote_prompt": (
             "Напиши одну короткую вдохновляющую цитату или мудрую мысль на русском языке "
@@ -137,6 +139,8 @@ S = {
         "poll_question": "📊 Qanday bo'ldi?\n{icon} {time} — {text}",
         "poll_yes": "✅ Bajarildi",
         "poll_no": "❌ Bajarilmadi",
+        "cb_saved_yes": "✅ Yozildi — bajarildi!",
+        "cb_saved_no": "❌ Yozildi — bajarilmadi",
         # quote
         "quote_prompt": (
             "O'zbek tilida bitta qisqa ilhomlantiruvchi iqtibos yoki dono fikr yoz "

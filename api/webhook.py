@@ -136,21 +136,36 @@ class handler(BaseHTTPRequestHandler):
                 except Exception:
                     pass
 
-        poll_answer = update.get("poll_answer")
-        if poll_answer:
-            poll_id = str(poll_answer["poll_id"])
-            option_ids = poll_answer.get("option_ids", [])
-            done = 0 in option_ids  # option 0 = Yes/Да/Ha
-            try:
-                from lib.github_storage import read_polls, read_day_data, write_day_data
-                polls = read_polls()
-                if poll_id in polls:
-                    p = polls[poll_id]
-                    day_data = read_day_data(p["date"])
-                    day_data.setdefault("schedule", {})[str(p["task_idx"])] = done
-                    write_day_data(p["date"], day_data)
-            except Exception:
-                pass
+        # Inline button callback (mark task done/not done)
+        callback = update.get("callback_query")
+        if callback:
+            cb_id   = callback["id"]
+            cb_chat = str(callback.get("from", {}).get("id", ""))
+            data    = callback.get("data", "")
+            if cb_chat == CHAT_ID and data.startswith("mark:"):
+                answer_text = "⚠️ error"
+                try:
+                    _, date_str, idx_str, done_str = data.split(":")
+                    day_data = read_day_data(date_str)
+                    day_data.setdefault("schedule", {})[idx_str] = (done_str == "1")
+                    write_day_data(date_str, day_data)
+                    lang = get_lang()
+                    answer_text = S[lang]["cb_saved_yes"] if done_str == "1" else S[lang]["cb_saved_no"]
+                except Exception as e:
+                    answer_text = f"⚠️ {e}"
+                try:
+                    httpx.post(f"{TG}/answerCallbackQuery", json={
+                        "callback_query_id": cb_id,
+                        "text": answer_text,
+                    }, timeout=5)
+                    # Remove buttons from the message after answering
+                    httpx.post(f"{TG}/editMessageReplyMarkup", json={
+                        "chat_id": cb_chat,
+                        "message_id": callback["message"]["message_id"],
+                        "reply_markup": json.dumps({"inline_keyboard": []}),
+                    }, timeout=5)
+                except Exception:
+                    pass
 
         self._ok()
 
