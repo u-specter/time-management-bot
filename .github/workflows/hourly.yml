@@ -1,7 +1,7 @@
 name: Hourly Notification
 on:
-  schedule:
-    - cron: '0 2-18 * * *'   # 07:00-23:00 UTC+5 every hour
+  # schedule:
+  #   - cron: '0 2-18 * * *'   # 07:00-23:00 UTC+5 every hour — disabled, using cron-job.org
   workflow_dispatch:
 jobs:
   notify:

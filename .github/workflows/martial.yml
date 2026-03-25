@@ -1,7 +1,7 @@
 name: Martial Arts Reminder
 on:
-  schedule:
-    - cron: '45 15 * * 2,4,6'  # 20:45 UTC+5 Tue/Thu/Sat
+  # schedule:
+  #   - cron: '45 15 * * 2,4,6'  # 20:45 UTC+5 Tue/Thu/Sat — disabled, using cron-job.org
   workflow_dispatch:
 jobs:
   notify:

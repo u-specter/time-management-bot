@@ -1,7 +1,7 @@
 name: Evening Notification
 on:
-  schedule:
-    - cron: '30 17 * * *'  # 22:30 UTC+5 daily
+  # schedule:
+  #   - cron: '30 17 * * *'  # 22:30 UTC+5 daily — disabled, using cron-job.org
   workflow_dispatch:
 jobs:
   notify:

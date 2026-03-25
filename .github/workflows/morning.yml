@@ -1,7 +1,7 @@
 name: Morning Notification
 on:
-  schedule:
-    - cron: '0 2 * * *'   # 07:00 UTC+5 daily
+  # schedule:
+  #   - cron: '0 2 * * *'   # 07:00 UTC+5 daily — disabled, using cron-job.org
   workflow_dispatch:
 jobs:
   notify:
