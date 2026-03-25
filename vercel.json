@@ -3,8 +3,16 @@
   "builds": [
     { "src": "api/*.py", "use": "@vercel/python" }
   ],
+  "functions": {
+    "api/*.py": { "maxDuration": 30 }
+  },
   "routes": [
-    { "src": "/api/webhook", "dest": "/api/webhook.py" },
-    { "src": "/api/data", "dest": "/api/data.py" }
+    { "src": "/api/webhook",        "dest": "/api/webhook.py" },
+    { "src": "/api/data",           "dest": "/api/data.py" },
+    { "src": "/api/notify_morning", "dest": "/api/notify_morning.py" },
+    { "src": "/api/notify_hourly",  "dest": "/api/notify_hourly.py" },
+    { "src": "/api/notify_evening", "dest": "/api/notify_evening.py" },
+    { "src": "/api/notify_martial", "dest": "/api/notify_martial.py" },
+    { "src": "/api/notify_weekly",  "dest": "/api/notify_weekly.py" }
   ]
 }
