@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 from http.server import BaseHTTPRequestHandler
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlparse, parse_qs
 
 import httpx
 
@@ -19,8 +20,11 @@ TZ          = timedelta(hours=5)  # UTC+5 Tashkent
 TG          = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 
-def _authorized(headers) -> bool:
+def _authorized(headers, path: str = "") -> bool:
     if not CRON_SECRET:
+        return True
+    qs = parse_qs(urlparse(path).query)
+    if qs.get("secret", [""])[0] == CRON_SECRET:
         return True
     return headers.get("Authorization", "") == f"Bearer {CRON_SECRET}"
 
@@ -32,7 +36,7 @@ def _now_local() -> datetime:
 class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        if not _authorized(self.headers):
+        if not _authorized(self.headers, self.path):
             self._respond(401, {"error": "unauthorized"})
             return
         try:
