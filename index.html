@@ -456,36 +456,11 @@ h6.section-title {
 
     <!-- ========== TAB: ФИНАНСЫ ========== -->
     <div class="tab-pane fade" id="tab-finance">
-      <div class="d-flex justify-content-between align-items-baseline mb-3">
-        <h6 class="mb-0 fw-bold">Зарплата: <span class="text-warning">25 000 000 сум</span></h6>
-        <small class="text-secondary">~$1 950</small>
-      </div>
-
-      <div id="finance-bars"></div>
-
-      <div class="goal-section mt-3">
-        <div class="fin-total-row"><span>💸 Итого расходы</span><span>15 250 000 сум <span class="text-secondary">(61%)</span></span></div>
-        <div class="fin-total-row"><span>📦 Накопления</span><span>7 250 000 сум <span class="text-secondary">(29%)</span></span></div>
-        <div class="fin-total-row"><span>🔄 Резерв / непредвиденное</span><span>2 500 000 сум <span class="text-secondary">(10%)</span></span></div>
-        <div class="fin-total-row bold"><span>ИТОГО</span><span>25 000 000 сум</span></div>
-      </div>
-
-      <h6 class="section-title">Финансовые правила</h6>
-      <div class="goal-section">
-        <div class="rule-item">💳 Кредит, садака, машина — платятся сразу в день зарплаты</div>
-        <div class="rule-item">📈 Акции/золото: ~2.5–3М в месяц, 1г золото обязательно</div>
-        <div class="rule-item">📦 Накопления 7.25М — не трогать, цель: подушка на 6 месяцев</div>
-        <div class="rule-item">🔄 Резерв 2.5М — только для непредвиденных ситуаций</div>
-        <div class="rule-item">📅 Каждое воскресенье — учёт фактических расходов</div>
-      </div>
-
-      <h6 class="section-title">Трекер расходов (месяц)</h6>
-      <div class="goal-section p-0" style="overflow:hidden;">
-        <table class="table table-dark table-sm mb-0" style="background:transparent;">
-          <thead><tr style="color:#888;font-size:0.78rem;"><th>Статья</th><th>План</th><th>Факт</th><th>Откл.</th></tr></thead>
-          <tbody id="tracker-tbody"></tbody>
-        </table>
-      </div>
+      <div id="fin-strip"></div>
+      <div id="fin-income"></div>
+      <div id="fin-expenses"></div>
+      <div id="fin-net"></div>
+      <div id="fin-debts-plan"></div>
     </div>
 
     <!-- ========== TAB: ЦЕЛИ ========== -->
@@ -641,13 +616,40 @@ const WEEK_DATA = [
     tasks: ['Планирование недели', 'Финансовый учёт', 'Шахматы / Английский', 'Чтение / отдых'] },
 ];
 
-const FINANCE_ITEMS = [
-  { icon: '💳', label: 'Кредит (обязательно)',        sum: 6000000,  pct: 24, color: '#dc3545' },
-  { icon: '🤲', label: 'Благотворительность + родители', sum: 2000000, pct: 8,  color: '#6f42c1' },
-  { icon: '🚗', label: 'Расходы на машину',           sum: 2000000,  pct: 8,  color: '#0d6efd' },
-  { icon: '🛒', label: 'Личные расходы (еда, прочее)', sum: 2000000, pct: 8,  color: '#20c997' },
-  { icon: '📈', label: 'Акции + 1г золото',           sum: 2750000,  pct: 11, color: '#ffc107' },
-  { icon: '📚', label: 'Покупка книг',                sum: 500000,   pct: 2,  color: '#198754' },
+const FIN_MONTHS = ['Май', 'Июнь', 'Июль'];
+const FIN_MONTH_EMOJI = { 'Май': '🌱', 'Июнь': '☀️', 'Июль': '🌞' };
+const FIN_AUTO = 4_310_000;
+
+const FIN_INCOME = {
+  'Май':  { payments: [
+    { date: '15 май', label: 'Аванс оклада',       amount: 9_330_000 },
+    { date: '26 май', label: 'КПИ за апрель ⚠️',   amount: 7_500_000, warn: true },
+    { date: '30 май', label: 'Остаток оклада',      amount: 10_670_000 },
+  ]},
+  'Июнь': { payments: [
+    { date: '15 июн', label: 'Аванс оклада',        amount: 9_330_000 },
+    { date: '25 июн', label: 'КПИ за май 🏆',        amount: 20_000_000, big: true },
+    { date: '30 июн', label: 'Остаток оклада',       amount: 10_670_000 },
+  ]},
+  'Июль': { payments: [
+    { date: '15 июл', label: 'Аванс оклада',        amount: 9_330_000 },
+    { date: '25 июл', label: 'КПИ за июнь',          amount: 20_000_000, big: true },
+    { date: '30 июл', label: 'Остаток оклада',       amount: 10_670_000 },
+  ]},
+};
+
+const FIN_REGULAR = [
+  { icon: '🤲', label: 'Садака + родители', amount: 2_000_000, color: '#a78bfa' },
+  { icon: '🛒', label: 'Еда + личные',       amount: 3_000_000, color: '#fb923c' },
+  { icon: '📈', label: 'Акции + золото',     amount: 4_000_000, color: '#fbbf24' },
+  { icon: '📚', label: 'Книги',               amount:   500_000, color: '#4ade80' },
+];
+
+const FIN_DEBTS = [
+  { id: 'brat',  label: 'Брат',          icon: '👨',  amount: 9_710_000, color: '#a78bfa', def: 'Май'  },
+  { id: 'sport', label: 'Спорт абон.',   icon: '🏋️', amount: 5_400_000, color: '#60a5fa', def: 'Июнь' },
+  { id: 'tonir', label: 'Тонировка',     icon: '🚗',  amount: 2_000_000, color: '#34d399', def: 'Май'  },
+  { id: 'mikro', label: 'Микрозайм',     icon: '💳',  amount: 6_000_000, color: '#f472b6', def: 'Июль' },
 ];
 
 const GOALS_DATA = [
@@ -809,52 +811,278 @@ function initWeekTab() {
 // ============================================================
 //  TAB 3: ФИНАНСЫ
 // ============================================================
-function initFinanceTab() {
-  const barsContainer = document.getElementById('finance-bars');
-  FINANCE_ITEMS.forEach(item => {
-    const wrap = document.createElement('div');
-    wrap.className = 'fin-bar-wrap';
-    wrap.innerHTML = `
-      <div class="fin-label">
-        <span>${item.icon} ${item.label}</span>
-        <span>${fmtNum(item.sum)} сум (${item.pct}%)</span>
-      </div>
-      <div class="progress" style="height:10px;">
-        <div class="progress-bar" style="width:${item.pct}%;background:${item.color};"></div>
-      </div>
-    `;
-    barsContainer.appendChild(wrap);
-  });
+let finActiveMonth = localStorage.getItem('fin-active-month') || 'Май';
 
-  // Tracker table
-  const tbody = document.getElementById('tracker-tbody');
-  FINANCE_ITEMS.forEach(item => {
-    const storageKey = `fin-fact-${item.label}`;
-    const saved = localStorage.getItem(storageKey) || '';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-size:0.83rem;">${item.icon} ${item.label}</td>
-      <td style="color:#aaa;font-size:0.83rem;">${fmtNum(item.sum)}</td>
-      <td><input class="tracker-input" type="number" placeholder="0" value="${saved}" data-key="${storageKey}" data-plan="${item.sum}" /></td>
-      <td class="diff-cell" style="font-size:0.83rem;"></td>
-    `;
-    tbody.appendChild(tr);
-    const input = tr.querySelector('input');
-    updateDiff(input, tr.querySelector('.diff-cell'), item.sum, saved);
-    input.addEventListener('input', () => {
-      localStorage.setItem(storageKey, input.value);
-      updateDiff(input, tr.querySelector('.diff-cell'), item.sum, input.value);
-    });
-  });
+function finDebtMonth(id) {
+  const d = FIN_DEBTS.find(x => x.id === id);
+  return localStorage.getItem('fin-debt-' + id) || d.def;
+}
+function finSetDebtMonth(id, month) {
+  localStorage.setItem('fin-debt-' + id, month);
+}
+function finMonthIncome(mo) {
+  return FIN_INCOME[mo].payments.reduce((s, p) => s + p.amount, 0);
+}
+function finMonthDebtTotal(mo) {
+  return FIN_DEBTS.filter(d => finDebtMonth(d.id) === mo).reduce((s, d) => s + d.amount, 0);
+}
+function finRegularTotal() {
+  return FIN_REGULAR.reduce((s, e) => s + e.amount, 0);
+}
+function finMonthNet(mo) {
+  return finMonthIncome(mo) - FIN_AUTO - finRegularTotal() - finMonthDebtTotal(mo);
+}
+function finFmt(n) {
+  return (n / 1_000_000).toFixed(2).replace('.', ',') + ' млн';
+}
+function finNetColor(net) {
+  return net > 15_000_000 ? '#34d399' : net > 5_000_000 ? '#facc15' : '#fb923c';
+}
+function finMakeEl(tag, style, text) {
+  const el = document.createElement(tag);
+  if (style) el.style.cssText = style;
+  if (text !== undefined) el.textContent = text;
+  return el;
 }
 
-function updateDiff(input, cell, plan, val) {
-  const fact = parseFloat(val) || 0;
-  if (!val) { cell.textContent = '—'; cell.className = 'diff-cell'; return; }
-  const diff = fact - plan;
-  if (diff === 0) { cell.textContent = '0'; cell.className = 'diff-cell'; }
-  else if (diff > 0) { cell.textContent = '+' + fmtNum(diff); cell.className = 'diff-cell diff-neg'; }
-  else { cell.textContent = fmtNum(diff); cell.className = 'diff-cell diff-pos'; }
+function initFinanceTab() { renderFinTab(); }
+
+function renderFinTab() {
+  renderFinStrip();
+  renderFinIncome();
+  renderFinExpenses();
+  renderFinNet();
+  renderFinDebtsPlan();
+}
+
+function renderFinStrip() {
+  const el = document.getElementById('fin-strip');
+  el.innerHTML = '';
+  const wrap = finMakeEl('div', 'display:flex;gap:6px;margin-bottom:14px;');
+  FIN_MONTHS.forEach(mo => {
+    const income = finMonthIncome(mo);
+    const net    = finMonthNet(mo);
+    const active = mo === finActiveMonth;
+    const nc     = finNetColor(net);
+    const btn    = finMakeEl('button',
+      `flex:1;padding:10px 6px;border-radius:12px;
+       border:1px solid ${active ? nc+'60' : 'rgba(255,255,255,0.07)'};
+       background:${active ? nc+'18' : 'rgba(255,255,255,0.03)'};
+       cursor:pointer;font-family:inherit;color:inherit;
+       display:flex;flex-direction:column;align-items:center;gap:3px;`);
+    const emoji = finMakeEl('span', 'font-size:1.1rem;', FIN_MONTH_EMOJI[mo]);
+    const name  = finMakeEl('span', `font-size:0.72rem;color:${active?'#ddd':'#666'}`, mo);
+    const inc   = finMakeEl('span', `font-size:0.78rem;font-weight:700;color:${active?nc:'#555'}`, finFmt(income));
+    const rest  = finMakeEl('span', `font-size:0.62rem;color:${active?nc:'#444'}`, 'ост. ' + finFmt(net));
+    [emoji, name, inc, rest].forEach(c => btn.appendChild(c));
+    btn.addEventListener('click', () => {
+      finActiveMonth = mo;
+      localStorage.setItem('fin-active-month', mo);
+      renderFinTab();
+    });
+    wrap.appendChild(btn);
+  });
+  el.appendChild(wrap);
+}
+
+function renderFinIncome() {
+  const el       = document.getElementById('fin-income');
+  const m        = finActiveMonth;
+  const payments = FIN_INCOME[m].payments;
+  const total    = finMonthIncome(m);
+  el.innerHTML = '';
+
+  const card = finMakeEl('div',
+    'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1rem 1.2rem;margin-bottom:8px;');
+  const label = finMakeEl('div',
+    'font-size:0.58rem;color:#4ade80;letter-spacing:0.2em;margin-bottom:10px;',
+    '💵 ПОЛУЧУ В ' + m.toUpperCase());
+  card.appendChild(label);
+
+  payments.forEach(p => {
+    const row = finMakeEl('div',
+      `display:flex;justify-content:space-between;align-items:center;
+       padding:7px 10px;margin-bottom:6px;border-radius:10px;
+       background:${p.big?'rgba(52,211,153,0.1)':p.warn?'rgba(251,146,60,0.08)':'rgba(255,255,255,0.04)'};
+       border:1px solid ${p.big?'rgba(52,211,153,0.25)':p.warn?'rgba(251,146,60,0.18)':'rgba(255,255,255,0.06)'};`);
+    const left  = finMakeEl('div');
+    const date  = finMakeEl('div', 'font-size:0.6rem;color:#555;', p.date);
+    const lbl   = finMakeEl('div', `font-size:0.75rem;color:${p.warn?'#fb923c':'#aaa'}`, p.label);
+    left.appendChild(date); left.appendChild(lbl);
+    const amt = finMakeEl('div',
+      `font-size:1.1rem;font-weight:700;color:${p.big?'#34d399':p.warn?'#fb923c':'#4ade80'}`,
+      finFmt(p.amount));
+    row.appendChild(left); row.appendChild(amt);
+    card.appendChild(row);
+  });
+
+  const footer = finMakeEl('div',
+    'display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;margin-top:2px;');
+  footer.appendChild(finMakeEl('span', 'font-size:0.75rem;color:#777;', 'Итого'));
+  footer.appendChild(finMakeEl('span', 'font-size:1.2rem;font-weight:900;color:#4ade80;', finFmt(total)));
+  card.appendChild(footer);
+  el.appendChild(card);
+}
+
+function renderFinExpenses() {
+  const el         = document.getElementById('fin-expenses');
+  const m          = finActiveMonth;
+  const monthDebts = FIN_DEBTS.filter(d => finDebtMonth(d.id) === m);
+  const totalOut   = FIN_AUTO + finRegularTotal() + finMonthDebtTotal(m);
+  el.innerHTML = '';
+
+  const card = finMakeEl('div',
+    'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1rem 1.2rem;margin-bottom:8px;');
+  card.appendChild(finMakeEl('div',
+    'font-size:0.58rem;color:#f87171;letter-spacing:0.2em;margin-bottom:10px;',
+    '💸 ОТДАМ В ' + m.toUpperCase()));
+
+  // Auto fixed row
+  const autoRow = finMakeEl('div',
+    'display:flex;justify-content:space-between;align-items:center;padding:7px 10px;margin-bottom:8px;background:rgba(248,113,113,0.08);border-radius:10px;border:1px solid rgba(248,113,113,0.2);');
+  const autoLeft = finMakeEl('div');
+  autoLeft.appendChild(finMakeEl('div', 'font-size:0.75rem;color:#f87171;', '🚙 Рассрочка авто'));
+  autoLeft.appendChild(finMakeEl('div', 'font-size:0.6rem;color:#555;', 'фиксированный · каждый месяц · 30 мес'));
+  autoRow.appendChild(autoLeft);
+  autoRow.appendChild(finMakeEl('div', 'font-size:1.1rem;font-weight:700;color:#f87171;', '−' + finFmt(FIN_AUTO)));
+  card.appendChild(autoRow);
+
+  // Regular expenses
+  card.appendChild(finMakeEl('div', 'font-size:0.6rem;color:#888;letter-spacing:0.12em;margin-bottom:6px;', 'ЕЖЕМЕСЯЧНЫЕ РАСХОДЫ'));
+  FIN_REGULAR.forEach(e => {
+    const row = finMakeEl('div',
+      'display:flex;justify-content:space-between;align-items:center;padding:5px 10px;margin-bottom:4px;border-radius:8px;background:rgba(255,255,255,0.02);');
+    row.appendChild(finMakeEl('span', 'font-size:0.75rem;color:#aaa;', e.icon + ' ' + e.label));
+    row.appendChild(finMakeEl('span', `font-size:0.82rem;font-weight:600;color:${e.color};`, '−' + finFmt(e.amount)));
+    card.appendChild(row);
+  });
+
+  // Debts this month
+  if (monthDebts.length > 0) {
+    card.appendChild(finMakeEl('div',
+      'font-size:0.6rem;color:#f87171;letter-spacing:0.12em;margin:10px 0 6px;',
+      'ДОЛГИ В ' + m.toUpperCase()));
+    monthDebts.forEach(d => {
+      const debtBox = finMakeEl('div',
+        `padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid ${d.color}30;margin-bottom:6px;`);
+      const topRow = finMakeEl('div',
+        'display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;');
+      topRow.appendChild(finMakeEl('span', 'font-size:0.78rem;color:#aaa;', d.icon + ' ' + d.label));
+      topRow.appendChild(finMakeEl('span', `font-size:1rem;font-weight:700;color:${d.color};`, '−' + finFmt(d.amount)));
+      debtBox.appendChild(topRow);
+      const btnRow = finMakeEl('div', 'display:flex;gap:5px;align-items:center;');
+      btnRow.appendChild(finMakeEl('span', 'font-size:0.58rem;color:#555;', 'Перенести →'));
+      FIN_MONTHS.filter(mo => mo !== m).forEach(mo => {
+        const b = finMakeEl('button',
+          'padding:2px 8px;border-radius:6px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#777;cursor:pointer;font-family:inherit;',
+          FIN_MONTH_EMOJI[mo] + ' ' + mo);
+        b.dataset.debtId = d.id;
+        b.dataset.month  = mo;
+        b.addEventListener('click', () => {
+          finSetDebtMonth(b.dataset.debtId, b.dataset.month);
+          renderFinTab();
+        });
+        btnRow.appendChild(b);
+      });
+      debtBox.appendChild(btnRow);
+      card.appendChild(debtBox);
+    });
+  } else {
+    const empty = finMakeEl('div',
+      'padding:10px;text-align:center;background:rgba(52,211,153,0.05);border-radius:8px;border:1px dashed rgba(52,211,153,0.2);font-size:0.72rem;color:#555;',
+      'Нет долгов в этом месяце 🎉');
+    card.appendChild(empty);
+  }
+
+  const footer = finMakeEl('div',
+    'display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;margin-top:10px;');
+  footer.appendChild(finMakeEl('span', 'font-size:0.75rem;color:#777;', 'Итого расход'));
+  footer.appendChild(finMakeEl('span', 'font-size:1.2rem;font-weight:900;color:#f87171;', '−' + finFmt(totalOut)));
+  card.appendChild(footer);
+  el.appendChild(card);
+}
+
+function renderFinNet() {
+  const el     = document.getElementById('fin-net');
+  const m      = finActiveMonth;
+  const income = finMonthIncome(m);
+  const out    = FIN_AUTO + finRegularTotal() + finMonthDebtTotal(m);
+  const net    = finMonthNet(m);
+  const nc     = finNetColor(net);
+  const pct    = income > 0 ? Math.round((net / income) * 100) : 0;
+  el.innerHTML = '';
+
+  const card = finMakeEl('div',
+    `background:${nc}12;border:1px solid ${nc}40;border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;`);
+  const left = finMakeEl('div');
+  left.appendChild(finMakeEl('div', 'font-size:0.6rem;color:#888;letter-spacing:0.2em;margin-bottom:4px;', '🏦 ОСТАТОК / В КОПИЛКУ'));
+  left.appendChild(finMakeEl('div', `font-size:2rem;font-weight:900;color:${nc};`, finFmt(net)));
+  left.appendChild(finMakeEl('div', 'font-size:0.68rem;color:#555;margin-top:2px;', finFmt(income) + ' − ' + finFmt(out)));
+  const right = finMakeEl('div', 'text-align:right;');
+  right.appendChild(finMakeEl('div', 'font-size:0.65rem;color:#555;margin-bottom:4px;', 'от зарплаты'));
+  right.appendChild(finMakeEl('div', `font-size:1.1rem;font-weight:700;color:${nc};`, pct + '%'));
+  card.appendChild(left); card.appendChild(right);
+  el.appendChild(card);
+}
+
+function renderFinDebtsPlan() {
+  const el = document.getElementById('fin-debts-plan');
+  const m  = finActiveMonth;
+  el.innerHTML = '';
+
+  const card = finMakeEl('div',
+    'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1rem 1.2rem;margin-bottom:16px;');
+  card.appendChild(finMakeEl('div',
+    'font-size:0.58rem;color:#888;letter-spacing:0.2em;margin-bottom:10px;',
+    '📋 ВСЕ ДОЛГИ — РАСПРЕДЕЛЕНИЕ'));
+
+  FIN_DEBTS.forEach(d => {
+    const assigned = finDebtMonth(d.id);
+    const isThis   = assigned === m;
+    const row = finMakeEl('div',
+      `display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:6px 8px;border-radius:8px;
+       background:${isThis?d.color+'18':'transparent'};border:1px solid ${isThis?d.color+'30':'transparent'};`);
+    const rowLeft = finMakeEl('div', 'display:flex;align-items:center;gap:6px;');
+    rowLeft.appendChild(finMakeEl('span', '', d.icon));
+    rowLeft.appendChild(finMakeEl('span', 'font-size:0.75rem;color:#aaa;', d.label));
+    const rowRight = finMakeEl('div', 'display:flex;align-items:center;gap:8px;');
+    rowRight.appendChild(finMakeEl('span', `font-size:0.75rem;color:${d.color};font-weight:600;`, finFmt(d.amount)));
+    const btnWrap = finMakeEl('div', 'display:flex;gap:4px;');
+    FIN_MONTHS.forEach(mo => {
+      const sel = assigned === mo;
+      const b = finMakeEl('button',
+        `width:30px;height:22px;border-radius:6px;font-size:0.58rem;cursor:pointer;font-family:inherit;
+         border:1px solid ${sel?d.color+'80':'rgba(255,255,255,0.08)'};
+         background:${sel?d.color+'25':'rgba(255,255,255,0.03)'};
+         color:${sel?d.color:'#555'};`,
+        mo.slice(0, 3));
+      b.dataset.debtId = d.id;
+      b.dataset.month  = mo;
+      b.addEventListener('click', () => {
+        finSetDebtMonth(b.dataset.debtId, b.dataset.month);
+        renderFinTab();
+      });
+      btnWrap.appendChild(b);
+    });
+    rowRight.appendChild(btnWrap);
+    row.appendChild(rowLeft); row.appendChild(rowRight);
+    card.appendChild(row);
+  });
+
+  const summary = finMakeEl('div',
+    'border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;margin-top:4px;display:flex;justify-content:space-between;');
+  FIN_MONTHS.forEach(mo => {
+    const net = finMonthNet(mo);
+    const nc  = finNetColor(net);
+    const dt  = finMonthDebtTotal(mo);
+    const col = finMakeEl('div', 'text-align:center;flex:1;');
+    col.appendChild(finMakeEl('div', 'font-size:0.65rem;color:#666;margin-bottom:2px;', mo));
+    col.appendChild(finMakeEl('div', `font-size:0.7rem;font-weight:600;color:${dt>0?'#f87171':'#555'}`, '−' + finFmt(dt + FIN_AUTO)));
+    col.appendChild(finMakeEl('div', `font-size:0.62rem;color:${nc};`, 'ост. ' + finFmt(net)));
+    summary.appendChild(col);
+  });
+  card.appendChild(summary);
+  el.appendChild(card);
 }
 
 // ============================================================
