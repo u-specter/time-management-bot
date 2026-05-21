@@ -12,7 +12,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
-  background: #0a0a0f;
+  background: #080810;
   color: #e0e0e0;
   font-size: 0.92rem;
 }
@@ -25,9 +25,9 @@ body {
   pointer-events: none;
   z-index: 0;
 }
-.orb-1 { width: 400px; height: 400px; background: rgba(251,191,36,0.07);  top: -100px; right: -80px; }
-.orb-2 { width: 300px; height: 300px; background: rgba(251,146,60,0.05);  bottom: 100px; left: -80px; }
-.orb-3 { width: 200px; height: 200px; background: rgba(99,102,241,0.04);  top: 50%; left: 40%; }
+.orb-1 { width: 400px; height: 400px; background: rgba(99,102,241,0.08);  top: -100px; right: -80px; }
+.orb-2 { width: 300px; height: 300px; background: rgba(139,92,246,0.06);  bottom: 100px; left: -80px; }
+.orb-3 { width: 200px; height: 200px; background: rgba(99,102,241,0.03);  top: 50%; left: 40%; }
 
 .container { position: relative; z-index: 1; }
 
@@ -40,55 +40,71 @@ body {
   justify-content: space-between;
   align-items: center;
 }
-.header-sub {
-  color: #555;
-  font-weight: 400;
-  font-size: 0.82rem;
-  margin-left: 6px;
+.header-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
 }
 .header-date {
-  font-size: 11px;
-  color: #555;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  padding: 4px 12px;
-  border-radius: 20px;
-  white-space: nowrap;
+  font-size: 0.6rem;
+  color: #444;
+  margin-top: 2px;
+}
+.header-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 /* ============================================================
-   TABS
+   BOTTOM NAVIGATION
    ============================================================ */
-.nav-tabs {
-  border: 1px solid rgba(255,255,255,0.07) !important;
-  background: rgba(255,255,255,0.03);
-  border-radius: 10px;
-  padding: 3px;
-  backdrop-filter: blur(12px);
+#bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(8,8,16,0.96);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
-  gap: 2px;
+  padding: 6px 8px max(8px, env(safe-area-inset-bottom));
 }
-.nav-tabs .nav-link {
+.bnav-btn {
   flex: 1;
-  text-align: center;
-  color: #555;
-  border: 1px solid transparent !important;
-  border-radius: 7px !important;
-  padding: 6px 4px;
-  font-size: 12px;
-  transition: color 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 4px 5px;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s, border-color 0.15s;
 }
-.nav-tabs .nav-link:hover {
-  color: #888;
-  background: rgba(255,255,255,0.04);
+.bnav-icon { font-size: 1.1rem; line-height: 1; }
+.bnav-label {
+  font-size: 0.55rem;
+  color: #444;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
-.nav-tabs .nav-link.active {
-  color: #fbbf24 !important;
-  background: rgba(251,191,36,0.13) !important;
-  border-color: rgba(251,191,36,0.25) !important;
-  font-weight: 600;
-  box-shadow: 0 0 12px rgba(251,191,36,0.08);
+.bnav-btn.active {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.25);
 }
+.bnav-btn.active .bnav-label { color: #818cf8; }
 
 .tab-content { padding-top: 16px; }
 h6.section-title {
@@ -128,9 +144,9 @@ h6.section-title {
   background: rgba(239,68,68,0.04);
 }
 .day-btn.active-day {
-  background: rgba(251,191,36,0.12) !important;
-  color: #fbbf24 !important;
-  border-color: rgba(251,191,36,0.3) !important;
+  background: rgba(99,102,241,0.15) !important;
+  color: #818cf8 !important;
+  border-color: rgba(99,102,241,0.35) !important;
   font-weight: 700;
 }
 .day-btn.martial.active-day {
@@ -154,8 +170,8 @@ h6.section-title {
 }
 .schedule-row:hover { background: rgba(255,255,255,0.05); }
 .schedule-row.done {
-  background: rgba(251,191,36,0.03);
-  border-color: rgba(251,191,36,0.08);
+  background: rgba(99,102,241,0.05);
+  border-color: rgba(99,102,241,0.1);
 }
 .schedule-row.done .task-text { text-decoration: line-through; color: #3a3a3a; }
 .schedule-row.done .task-time { color: #2e2e2e; }
@@ -199,25 +215,25 @@ h6.section-title {
   color: transparent;
 }
 .schedule-row.done .task-check {
-  background: rgba(251,191,36,0.18);
-  border-color: rgba(251,191,36,0.4);
-  color: #fbbf24;
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.5);
+  color: #818cf8;
 }
 
 #day-progress-wrap {
   position: sticky;
-  bottom: 0;
-  background: rgba(10,10,15,0.92);
+  bottom: 58px;
+  background: rgba(8,8,16,0.93);
   backdrop-filter: blur(16px);
   border-top: 1px solid rgba(255,255,255,0.05);
   padding: 10px 0 4px;
 }
 #day-progress-wrap .d-flex small { font-size: 11px; }
 #progress-label { color: #555; }
-#progress-pct { color: #fbbf24; }
+#progress-pct { color: #818cf8; }
 #progress-bar {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  box-shadow: 0 0 8px rgba(251,191,36,0.35);
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  box-shadow: 0 0 8px rgba(99,102,241,0.35);
 }
 .progress {
   background: rgba(255,255,255,0.05);
@@ -270,11 +286,17 @@ h6.section-title {
   color: #777;
 }
 .rule-item:last-child { border-bottom: none; }
-.badge.bg-warning {
-  background: rgba(251,191,36,0.2) !important;
-  color: #fbbf24 !important;
-  font-size: 0.65rem !important;
-  border: 1px solid rgba(251,191,36,0.3);
+.badge-today {
+  display: inline-block;
+  background: rgba(99,102,241,0.2);
+  color: #818cf8;
+  font-size: 0.62rem;
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-weight: 600;
+  vertical-align: middle;
+  margin-left: 4px;
 }
 
 /* ============================================================
@@ -299,7 +321,7 @@ h6.section-title {
   color: #888;
 }
 .fin-total-row:last-child { border-bottom: none; }
-.fin-total-row.bold { font-weight: 700; color: #fbbf24; font-size: 0.92rem; }
+.fin-total-row.bold { font-weight: 700; color: #818cf8; font-size: 0.92rem; }
 .tracker-input {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -312,8 +334,8 @@ h6.section-title {
 }
 .tracker-input:focus {
   outline: none;
-  border-color: rgba(251,191,36,0.4);
-  background: rgba(251,191,36,0.04);
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.04);
 }
 .diff-pos { color: #4ade80; }
 .diff-neg { color: #f87171; }
@@ -373,9 +395,9 @@ h6.section-title {
   transition: background 0.15s, border-color 0.15s;
 }
 .goal-cb.checked {
-  background: rgba(251,191,36,0.18);
-  border-color: rgba(251,191,36,0.4);
-  color: #fbbf24;
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.5);
+  color: #818cf8;
 }
 .goal-mini-bar {
   height: 2px;
@@ -386,14 +408,14 @@ h6.section-title {
 .goal-mini-fill {
   height: 100%;
   border-radius: 1px;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
   transition: width 0.3s ease;
 }
 #goals-bar {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  box-shadow: 0 0 8px rgba(251,191,36,0.3);
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  box-shadow: 0 0 8px rgba(99,102,241,0.3);
 }
-#goals-pct { color: #fbbf24; }
+#goals-pct { color: #818cf8; }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -403,16 +425,12 @@ h6.section-title {
 <div class="orb orb-3"></div>
 <div class="container" style="max-width:680px; padding-bottom: 80px;">
   <div class="header-wrap">
-    <h5 class="mb-0 fw-bold">Умиджон <span class="header-sub">/ тайм-менеджмент</span></h5>
-    <div class="header-date" id="header-date"></div>
+    <div>
+      <div class="header-name">Умиджон</div>
+      <div class="header-date" id="header-date"></div>
+    </div>
+    <div class="header-avatar">U</div>
   </div>
-
-  <ul class="nav nav-tabs" id="mainTabs">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-day">📅 День</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-week">🗓 Неделя</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-finance">💰 Финансы</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-goals">🎯 Цели</button></li>
-  </ul>
 
   <div class="tab-content">
 
@@ -480,6 +498,25 @@ h6.section-title {
   </div><!-- /tab-content -->
 </div><!-- /container -->
 
+<nav id="bottom-nav">
+  <button class="bnav-btn active" data-tab="tab-day">
+    <span class="bnav-icon">📅</span>
+    <span class="bnav-label">День</span>
+  </button>
+  <button class="bnav-btn" data-tab="tab-week">
+    <span class="bnav-icon">🗓</span>
+    <span class="bnav-label">Неделя</span>
+  </button>
+  <button class="bnav-btn" data-tab="tab-finance">
+    <span class="bnav-icon">💰</span>
+    <span class="bnav-label">Финансы</span>
+  </button>
+  <button class="bnav-btn" data-tab="tab-goals">
+    <span class="bnav-icon">🎯</span>
+    <span class="bnav-label">Цели</span>
+  </button>
+</nav>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // ============================================================
@@ -524,17 +561,14 @@ const MARTIAL_DAYS = [2, 4]; // Tue, Thu (JS: 0=Sun)
 const SCHEDULE_NORMAL = [
   { time: '07:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание + сборы' },
   { time: '07:30', icon: '🚌', cat: 'blue',   text: 'Дорога на работу — English listening / подкаст' },
-  { time: '08:30', icon: '📚', cat: 'gray',   text: 'Приехал — свободен до 9:00 → Книга №1 (рабочая)' },
   { time: '09:00', icon: '💼', cat: 'orange', text: 'РАБОТА — основные задачи (глубокая работа)' },
-  { time: '11:00', icon: '🎓', cat: 'green',  text: 'Coursera / Udemy — 1 урок (свободное время)' },
-  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + дайджест стартапов + Книга №1' },
-  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Vibe-coding / Коран / риторика' },
+  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + дайджест стартапов или книга (без спешки)' },
+  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Vibe-coding / Coursera / Коран' },
   { time: '16:00', icon: '💼', cat: 'orange', text: 'РАБОТА — задачи, встречи' },
-  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой (плавающее)' },
-  { time: '19:00', icon: '😮‍💨', cat: 'gray',  text: 'Дома: ужин / переключение / отдых' },
-  { time: '19:30', icon: '✍️', cat: 'yellow', text: 'БЛОК: блог — сценарий (Пн/Ср) / LinkedIn пост (Пт) / проект' },
-  { time: '21:30', icon: '📖', cat: 'blue',   text: 'Книга №2 / Курс Коран / Английский Anki' },
-  { time: '22:30', icon: '📝', cat: 'gray',   text: 'Планирование следующего дня — 15 мин' },
+  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой' },
+  { time: '19:00', icon: '😮‍💨', cat: 'gray',  text: 'Дома: ужин + полноценный ОТДЫХ (свободное время)' },
+  { time: '21:00', icon: '🚀', cat: 'purple', text: 'Личный блок (проект, книга или блог — по настроению, 45 мин)' },
+  { time: '22:30', icon: '📝', cat: 'gray',   text: 'Планирование следующего дня — 10 мин' },
   { time: '22:45', icon: '🌙', cat: 'purple', text: 'Вечерний намаз + расслабление' },
   { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
 ];
@@ -542,33 +576,25 @@ const SCHEDULE_NORMAL = [
 const SCHEDULE_MARTIAL = [
   { time: '07:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание + сборы' },
   { time: '07:30', icon: '🚌', cat: 'blue',   text: 'Дорога на работу — English listening / подкаст' },
-  { time: '08:30', icon: '📚', cat: 'gray',   text: 'Приехал — свободен до 9:00 → Книга №1 (рабочая)' },
   { time: '09:00', icon: '💼', cat: 'orange', text: 'РАБОТА — основные задачи (глубокая работа)' },
-  { time: '11:00', icon: '🎓', cat: 'green',  text: 'Coursera / Udemy — 1 урок (свободное время)' },
-  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + дайджест стартапов + Книга №1' },
-  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Vibe-coding / Коран / риторика' },
+  { time: '13:00', icon: '🥗', cat: 'gray',   text: 'Обед + отдых' },
+  { time: '14:00', icon: '⚡', cat: 'yellow', text: 'Личное время → Коран / Coursera' },
   { time: '16:00', icon: '💼', cat: 'orange', text: 'РАБОТА — задачи, встречи' },
-  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой (плавающее)' },
-  { time: '19:00', icon: '😮‍💨', cat: 'gray',  text: 'Дома: ужин / переключение / отдых' },
-  { time: '19:30', icon: '🥊', cat: 'red',    text: 'Подготовка к единоборству / разминка дома' },
-  { time: '20:30', icon: '🚶', cat: 'red',    text: 'Выход на единоборства' },
-  { time: '21:00', icon: '🥋', cat: 'red',    text: 'ЕДИНОБОРСТВА' },
-  { time: '22:30', icon: '🚿', cat: 'gray',   text: 'Возврат + душ + восстановление' },
-  { time: '22:45', icon: '📝', cat: 'gray',   text: 'Планирование следующего дня — 15 мин' },
+  { time: '18:00', icon: '🏠', cat: 'gray',   text: 'Завершение работы / дорога домой + легкий ужин' },
+  { time: '19:30', icon: '🥊', cat: 'red',    text: 'Подготовка к тренировке и дорога' },
+  { time: '21:00', icon: '🥋', cat: 'red',    text: 'ЕДИНОБОРСТВА (главный фокус вечера)' },
+  { time: '22:30', icon: '🚿', cat: 'gray',   text: 'Возврат + душ, экспресс-планирование' },
   { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
 ];
 
 const SCHEDULE_SATURDAY = [
   { time: '08:00', icon: '🌅', cat: 'gray',   text: 'Подъём + намаз + умывание' },
-  { time: '09:00', icon: '☕', cat: 'orange', text: 'Завтрак + отдых / семья' },
-  { time: '10:00', icon: '🚀', cat: 'purple', text: 'Личный проект / Vibe-coding / Запись видео для блога' },
-  { time: '12:00', icon: '🥗', cat: 'orange', text: 'Обед' },
-  { time: '13:00', icon: '♟️', cat: 'blue',   text: 'Шахматы / Английский' },
-  { time: '15:00', icon: '📖', cat: 'yellow', text: 'Чтение / Коран' },
+  { time: '09:00', icon: '☕', cat: 'orange', text: 'Семейный завтрак + отдых' },
+  { time: '10:00', icon: '🚀', cat: 'purple', text: 'Личное творчество (Vibe-coding или запись видео)' },
+  { time: '13:00', icon: '🥗', cat: 'orange', text: 'Обед + свободное время (шахматы / отдых)' },
+  { time: '15:00', icon: '📖', cat: 'yellow', text: 'Спокойное чтение / Коран' },
   { time: '17:00', icon: '🚶', cat: 'green',  text: 'Прогулка / свежий воздух' },
-  { time: '19:00', icon: '🍽️', cat: 'orange', text: 'Ужин + отдых' },
-  { time: '19:30', icon: '🥊', cat: 'red',    text: 'Подготовка к единоборству' },
-  { time: '20:30', icon: '🚶', cat: 'red',    text: 'Выход на единоборства' },
+  { time: '19:00', icon: '🍽️', cat: 'orange', text: 'Ужин + подготовка к тренировке' },
   { time: '21:00', icon: '🥋', cat: 'red',    text: 'ЕДИНОБОРСТВА' },
   { time: '22:30', icon: '🚿', cat: 'gray',   text: 'Возврат + душ + восстановление' },
   { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
@@ -576,16 +602,13 @@ const SCHEDULE_SATURDAY = [
 
 const SCHEDULE_SUNDAY = [
   { time: '09:00', icon: '🌅', cat: 'gray',   text: 'Подъём без будильника + намаз' },
-  { time: '10:00', icon: '☕', cat: 'orange', text: 'Завтрак + семейное время' },
-  { time: '11:00', icon: '📖', cat: 'yellow', text: 'Чтение / Книга №1 или №2' },
+  { time: '10:00', icon: '☕', cat: 'orange', text: 'Семейный завтрак + отдых' },
+  { time: '11:00', icon: '📖', cat: 'yellow', text: 'Спокойное чтение / Коран' },
   { time: '13:00', icon: '🥗', cat: 'orange', text: 'Обед' },
-  { time: '14:00', icon: '🔄', cat: 'blue',   text: 'Обзор недели + планирование следующей' },
-  { time: '16:00', icon: '🚶', cat: 'green',  text: 'Прогулка / свежий воздух' },
-  { time: '18:00', icon: '🍽️', cat: 'orange', text: 'Ужин' },
-  { time: '19:00', icon: '♟️', cat: 'blue',   text: 'Шахматы / Английский Anki' },
-  { time: '20:00', icon: '📊', cat: 'yellow', text: 'Финансовый учёт + итоги недели' },
-  { time: '21:00', icon: '📖', cat: 'yellow', text: 'Чтение / расслабление' },
-  { time: '22:30', icon: '🌙', cat: 'gray',   text: 'Вечерний намаз + подготовка ко сну' },
+  { time: '14:00', icon: '🔄', cat: 'blue',   text: 'Итоги недели + финансовый учёт' },
+  { time: '16:00', icon: '🚶', cat: 'green',  text: 'Свободное время (прогулка, шахматы, общение)' },
+  { time: '19:00', icon: '🍽️', cat: 'orange', text: 'Семейный ужин + расслабление' },
+  { time: '22:00', icon: '🌙', cat: 'gray',   text: 'Вечерний намаз + планирование недели' },
   { time: '23:00', icon: '😴', cat: 'gray',   text: 'СОН' },
 ];
 
@@ -798,9 +821,9 @@ function initWeekTab() {
     const isToday = day.dow === todayDow;
     const card = document.createElement('div');
     card.className = 'week-card' + (day.martial ? ' martial-day' : '');
-    if (isToday) card.style.borderColor = '#ffc107';
+    if (isToday) card.style.borderColor = 'rgba(99,102,241,0.5)';
     card.innerHTML = `
-      <div class="day-label">${day.label} ${isToday ? '<span class="badge bg-warning text-dark" style="font-size:0.7rem;">сегодня</span>' : ''}</div>
+      <div class="day-label">${day.label}${isToday ? '<span class="badge-today">сегодня</span>' : ''}</div>
       <div class="day-theme">${day.theme}</div>
       <ul>${day.tasks.map(t => `<li>${t}</li>`).join('')}</ul>
     `;
@@ -1161,9 +1184,23 @@ function updateGoalsProgress() {
 }
 
 // ============================================================
+//  BOTTOM NAV
+// ============================================================
+function initBottomNav() {
+  document.querySelectorAll('.bnav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tab;
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
+      document.getElementById(tabId).classList.add('show', 'active');
+      document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+}
+
+// ============================================================
 //  INIT
 // ============================================================
-// Render header date
 (function() {
   const el = document.getElementById('header-date');
   if (!el) return;
@@ -1176,6 +1213,7 @@ initDayTab();
 initWeekTab();
 initFinanceTab();
 initGoalsTab();
+initBottomNav();
 </script>
 </body>
 </html>
